@@ -1,0 +1,2289 @@
+  ADDR B1 B2 B3 B4 C:\Users\pon_c\OneDrive\Documentos\OneDrive\     PAGE       1
+
+                   * PROGRAMA START
+
+                   *DECLARACION CONSTANTES
+
+                   SCDR   EQU   $102F
+                   SCCR2  EQU   $102D
+                   SCSR   EQU   $102E
+                   SCCR1  EQU   $102C
+                   BAUD   EQU   $102B
+                   HPRIO  EQU   $103C
+                   SPCR   EQU   $1028
+                   CSCTL  EQU   $105D
+                   OPT2   EQU   $1038
+                   DDRD   EQU   $1009
+                   DIRERRO EQU     $8F00
+                   DIRERNV EQU     $8F18
+                   DIRERDE EQU     $8F2F
+
+
+
+                   *DECLARACION DE VARIABLES
+
+                   ORDEN EQU $0000
+                   U1    EQU $0001
+                   U2    EQU $0002
+                   U3    EQU $0003
+                   U4    EQU $0004
+                   VAR   EQU $0005
+                   CONTOK EQU $0006             *contador para detectar el 'OK'
+                   DIR_BASE EQU $0050
+                   DIR_LETRAS EQU $0070
+                   AUXDECIMAL EQU $0007
+
+                   CONT    EQU     $0020   * Y 0021, es el valor del numero
+.                  leido en hexadecimal
+                   CONT2   EQU     $0021
+                   REF     EQU     $0022
+                   REFT    EQU     $0023
+                   REFC    EQU     $0024
+                   REFL    EQU     $0025
+                   REFD    EQU     $0026
+                   REFM    EQU     $0027
+                   CONTM   EQU     $0028
+                   CONTC   EQU     $0029
+                   CONTD   EQU     $002A
+                   CONTU   EQU     $002B
+                   DEGM    EQU     $0030   * Unidad de millar
+                   DEGC    EQU     $0031   * Centena
+                   DEGD    EQU     $0032   * Decena
+                   DEGU    EQU     $0033   * Unidad
+                   CONTERR EQU     $0034   * Contador para imprimir el error
+                   CARESC  EQU     $0035   * Caracter a escribir
+                   DIRLIM  EQU     $0036   * Posicion para limpiar
+                   TIPO    EQU     $0037   * 'R para romano y 'D para decimal
+                   CAR     EQU     $0040   * Es el caracter leido actualmente
+                   NODIG   EQU     $0041   * Es el numero de letras leidas
+                   DIGACT  EQU     $0042   * Posicion del digito actual, empieza
+.                  en NODIG-1 y se va decrementando
+                   DIRMEN  EQU     $0043   * Se guarda la direccion desde donde
+.                  se mostrara el mensaje final
+
+
+                           ORG     $8F00
+  8F00 4E 55 4D 45         FCC     "NUMERO ROMANO NO VALIDO$"
+. 8F04 52 4F 20 52
+  ADDR B1 B2 B3 B4 C:\Users\pon_c\OneDrive\Documentos\OneDrive\     PAGE       2
+
+. 8F08 4F 00 41 4E
+. 8F0C 4F 20 4E 4F
+. 8F10 20 56 41 32
+. 8F14 49 44 4F 24
+  8F18 4E 55 4D 45         FCC     "NUMERO NO VALIDO$"
+. 8F1C 52 4F 20 4E
+. 8F20 4F 20 56 41
+. 8F24 4C 49 44 4F
+. 8F28 24
+  8F29 4E 55 4D 45         FCC     "NUMERO DECIMAL NO VALIDO$"
+. 8F2D 52 4F 20 44
+. 8F31 45 43 49 4D
+. 8F35 41 4C 20 4E
+. 8F39 4F 20 56 41
+. 8F3D 4C 49 44 4F
+. 8F41 24
+                           ORG     $9000
+  9000 75 6E 6F 20         FCC     "uno "
+  9004 64 6F 73 20         FCC     "dos "
+  9008 74 72 65 73         FCC     "tres "
+. 900C 20
+  900D 63 75 61 74         FCC     "cuatro "
+. 9011 72 6F 20
+  9014 63 69 6E 63         FCC     "cinco "
+. 9018 6F 20
+  901A 73 65 69 73         FCC     "seis "
+. 901E 20
+  901F 73 69 65 74         FCC     "siete "
+. 9023 65 20
+  9025 6F 63 68 6F         FCC     "ocho "
+. 9029 20
+  902A 6E 75 65 76         FCC     "nueve "
+. 902E 65 20
+  9030 6D 69 6C 20         FCC     "mil "
+  9034 6E 6F 76 65         FCC     "novecientos "
+. 9038 63 69 65 6E
+. 903C 74 6F 73 20
+  9040 6F 63 68 6F         FCC     "ochocientos "
+. 9044 63 69 65 6E
+. 9048 74 6F 73 20
+  904C 73 65 74 65         FCC     "setecientos "
+. 9050 63 69 65 6E
+. 9054 74 6F 73 20
+  9058 73 65 69 73         FCC     "seiscientos "
+. 905C 63 69 65 6E
+. 9060 74 6F 73 20
+  9064 71 75 69 6E         FCC     "quinientos "
+. 9068 69 65 6E 74
+. 906C 6F 73 20
+  906F 63 75 61 74         FCC     "cuatrocientos "
+. 9073 72 6F 63 69
+. 9077 65 6E 74 6F
+. 907B 73 20
+  907D 74 72 65 73         FCC     "trescientos "
+. 9081 63 69 65 6E
+. 9085 74 6F 73 20
+  9089 64 6F 73 63         FCC     "doscientos "
+. 908D 69 65 6E 74
+. 9091 6F 73 20
+  9094 63 69 65 6E         FCC     "ciento "
+. 9098 74 6F 20
+  909B 63 69 65 6E         FCC     "cien "
+. 909F 20
+  90A0 6E 6F 76 65         FCC     "noventa "
+. 90A4 6E 74 61 20
+  ADDR B1 B2 B3 B4 C:\Users\pon_c\OneDrive\Documentos\OneDrive\     PAGE       3
+
+  90A8 6F 63 68 65         FCC     "ochenta "
+. 90AC 6E 74 61 20
+  90B0 73 65 74 65         FCC     "setenta "
+. 90B4 6E 74 61 20
+  90B8 73 65 73 65         FCC     "sesenta "
+. 90BC 6E 74 61 20
+  90C0 63 69 6E 63         FCC     "cincuenta "
+. 90C4 75 65 6E 74
+. 90C8 61 20
+  90CA 63 75 61 72         FCC     "cuarenta  "
+. 90CE 65 6E 74 61
+. 90D2 20 20
+  90D4 74 72 65 69         FCC     "treinta "
+. 90D8 6E 74 61 20
+  90DC 76 65 69 6E         FCC     "veinte "
+. 90E0 74 65 20
+  90E3 76 65 69 6E         FCC     "veinti "
+. 90E7 74 69 20
+  90EA 64 69 65 63         FCC     "diecinueve "
+. 90EE 69 6E 75 65
+. 90F2 76 65 20
+  90F5 64 69 65 63         FCC     "dieciocho "
+. 90F9 69 6F 63 68
+. 90FD 6F 20
+  90FF 64 69 65 63         FCC     "diecisiete "
+. 9103 69 73 69 65
+. 9107 74 65 20
+  910A 64 69 65 63         FCC     "dieciseis "
+. 910E 69 73 65 69
+. 9112 73 20
+  9114 71 75 69 6E         FCC     "quince "
+. 9118 63 65 20
+  911B 63 61 74 6F         FCC     "catorce "
+. 911F 72 63 65 20
+  9123 74 72 65 63         FCC     "trece "
+. 9127 65 20
+  9129 64 6F 63 65         FCC     "doce "
+. 912D 20
+  912E 6F 6E 63 65         FCC     "once "
+. 9132 20
+  9133 64 69 65 7A         FCC     "diez "
+. 9137 20
+  9138 76 65 69 6E         FCC     "veintiuno "
+. 913C 74 69 75 6E
+. 9140 6F 20
+  9142 76 65 69 6E         FCC     "veintidos "
+. 9146 74 69 64 6F
+. 914A 73 20
+  914C 76 65 69 6E         FCC     "veintitres "
+. 9150 74 69 74 72
+. 9154 65 73 20
+  9157 76 65 69 6E         FCC     "veinticuatro "
+. 915B 74 69 63 75
+. 915F 61 74 72 6F
+. 9163 20
+  9164 76 65 69 6E         FCC     "veinticinco "
+. 9168 74 69 63 69
+. 916C 6E 63 6F 20
+  9170 76 65 69 6E         FCC     "veintiseis "
+. 9174 74 69 73 65
+. 9178 69 73 20
+  917B 76 65 69 6E         FCC     "veintisiete "
+. 917F 74 69 73 69
+. 9183 65 74 65 20
+  9187 76 65 69 6E         FCC     "veintiocho "
+  ADDR B1 B2 B3 B4 C:\Users\pon_c\OneDrive\Documentos\OneDrive\     PAGE       4
+
+. 918B 74 69 6F 63
+. 918F 68 6F 20
+  9192 76 65 69 6E         FCC     "veintinueve "
+. 9196 74 69 6E 75
+. 919A 65 76 65 20
+
+
+
+                         ORG $8000
+
+
+
+                   INICIO
+  8000 7F 00 00          CLR ORDEN
+  8003 7F 00 34          CLR CONTERR
+  8006 7F 00 05          CLR VAR
+  8009 7F 00 30          CLR DEGM
+  800C 7F 00 31          CLR DEGC
+  800F 7F 00 32          CLR DEGD
+  8012 7F 00 33          CLR DEGU
+  8015 7F 00 28          CLR CONTM
+  8018 7F 00 29          CLR CONTC
+  801B 7F 00 2A          CLR CONTD
+  801E 7F 00 2B          CLR CONTU
+  8021 8E 00 FF          LDS #$00FF
+  8024 BD 8B 6A          JSR SERIAL
+  8027 7F 00 41          CLR NODIG
+  802A 7F 00 34          CLR CONTERR
+  802D 7F 00 35          CLR CARESC
+  8030 7F 00 36          CLR DIRLIM
+  8033 7F 00 37          CLR TIPO
+
+                   CICLATE
+  8036 86 3F             LDAA #'?
+  8038 97 00             STAA ORDEN
+                   CICLO
+  803A D6 00             LDAB ORDEN
+  803C C1 3F             CMPB #'?
+  803E 27 FA             BEQ  CICLO
+
+  8040 CE 00 50          LDX #DIR_BASE
+  8043 7F 00 05          CLR VAR
+  8046 7F 00 06          CLR CONTOK
+  8049 E7 00             STAB $00,X
+  804B 08                INX
+
+                   * GUARDADO DE DATOS EN LA POSICIN $0050
+                   LOOP
+  804C 96 05             LDAA VAR
+  804E 27 FC             BEQ  LOOP
+  8050 7F 00 05          CLR  VAR
+
+
+  8053 D6 00             LDAB ORDEN
+  8055 E7 00             STAB $00,X
+
+  8057 08                INX
+  8058 7C 00 41          INC NODIG
+
+                         *Revisa si orden tiene una O y luego revisa si hay una
+.                  K
+  805B C1 3D             CMPB #$3D
+  805D 27 02             BEQ EXITOS
+
+
+  ADDR B1 B2 B3 B4 C:\Users\pon_c\OneDrive\Documentos\OneDrive\     PAGE       5
+
+                         *Si no hay o o K regresa a realizar el escrito
+  805F 26 EB             BNE LOOP
+
+
+                   *Parte para revisar el ok
+
+
+                   *******************************************************
+                   *******************************************************
+                   EXITOS
+  8061 CE 00 50          LDX #DIR_BASE
+
+
+                   *Primer valor en $0050
+  8064 A6 00             LDAA $00,X
+                         *revisa si los caracteres son romanos
+  8066 81 4D             CMPA #'M
+  8068 27 43             BEQ PROCESOROMANO
+  806A 81 44             CMPA #'D
+  806C 27 3F             BEQ PROCESOROMANO
+  806E 81 43             CMPA #'C
+  8070 27 3B             BEQ PROCESOROMANO
+  8072 81 4C             CMPA #'L
+  8074 27 37             BEQ PROCESOROMANO
+  8076 81 58             CMPA #'X
+  8078 27 33             BEQ PROCESOROMANO
+  807A 81 56             CMPA #'V
+  807C 27 2F             BEQ PROCESOROMANO
+  807E 81 49             CMPA #'I
+  8080 27 2B             BEQ PROCESOROMANO
+                         *ninguno de los casos, es decimal
+
+
+  8082 CE 00 50          LDX #DIR_BASE
+  8085 86 39             LDAA #$39
+  8087 7E 83 49          JMP REVISION_DECIMAL
+
+                   *Revisa si todos los otros valores ingrsados son letras
+.                  romanas
+
+                   REVISION_ROMANO
+  808A A6 00             LDAA $00,X
+                         *revisa si los caracteres son romanos
+  808C 81 4D             CMPA #'M
+  808E 27 1D             BEQ PROCESOROMANO
+  8090 81 44             CMPA #'D
+  8092 27 19             BEQ PROCESOROMANO
+  8094 81 43             CMPA #'C
+  8096 27 15             BEQ PROCESOROMANO
+  8098 81 4C             CMPA #'L
+  809A 27 11             BEQ PROCESOROMANO
+  809C 81 58             CMPA #'X
+  809E 27 0D             BEQ PROCESOROMANO
+  80A0 81 56             CMPA #'V
+  80A2 27 09             BEQ PROCESOROMANO
+  80A4 81 49             CMPA #'I
+  80A6 27 05             BEQ PROCESOROMANO
+                         *ninguno de los casos, ERROR
+  80A8 26 00             BNE SALTAERRORROMANO
+
+                   SALTAERRORROMANO
+  80AA 7E 83 24          JMP       ERRORROMANO
+
+
+
+  ADDR B1 B2 B3 B4 C:\Users\pon_c\OneDrive\Documentos\OneDrive\     PAGE       6
+
+                   *Revisa si el siguiente dato es igual, si es as manda a exito
+.                  romano, caso contrario sigue revisando
+                   PROCESOROMANO
+  80AD 08                INX
+  80AE A6 00             LDAA $00,X
+  80B0 81 3D             CMPA #$3D
+  80B2 27 02             BEQ EXITOROMANO
+  80B4 26 D4             BNE REVISION_ROMANO
+
+
+
+                   EXITOROMANO
+  80B6 86 52               LDAA    #'R
+  80B8 97 37               STAA    TIPO
+
+  80BA 96 41               LDAA    NODIG
+  80BC 97 42               STAA    DIGACT
+  80BE 7A 00 42            DEC     DIGACT
+  80C1 4C                  INCA
+  80C2 8B 50               ADDA    #DIR_BASE
+  80C4 97 43               STAA    DIRMEN
+
+  80C6 86 50               LDAA    #$50
+  80C8 9B 42               ADDA    DIGACT
+  80CA 8B 02               ADDA    #$02
+  80CC 97 36               STAA    DIRLIM
+  80CE 7E 85 F3            JMP     LIMPIA
+
+                   ROMANO
+  80D1 7F 00 20            CLR     CONT
+  80D4 7F 00 21            CLR     CONT2
+  80D7 7F 00 22            CLR     REF
+  80DA 7F 00 23            CLR     REFT
+  80DD 7F 00 24            CLR     REFC
+  80E0 7F 00 25            CLR     REFL
+  80E3 7F 00 26            CLR     REFD
+  80E6 7F 00 27            CLR     REFM
+                   COMPARAI
+  80E9 CE 00 50            LDX     #DIR_BASE
+  80EC 8F                  XGDX
+  80ED DB 42               ADDB    DIGACT
+  80EF 8F                  XGDX
+  80F0 A6 00               LDAA    $00,X
+  80F2 97 40               STAA    CAR
+  80F4 7A 00 42            DEC     DIGACT
+  80F7 81 49               CMPA    #'I
+  80F9 27 4D               BEQ     ESI
+  80FB 81 56               CMPA    #'V
+  80FD 27 5B               BEQ     ESV
+  80FF 7E 81 10            JMP     COMPARAXB
+                   COMPARAX
+  8102 CE 00 50            LDX     #DIR_BASE
+  8105 8F                  XGDX
+  8106 DB 42               ADDB    DIGACT
+  8108 8F                  XGDX
+  8109 A6 00               LDAA    $00,X
+  810B 97 40               STAA    CAR
+  810D 7A 00 42            DEC     DIGACT
+                   COMPARAXB
+  8110 81 58               CMPA    #'X
+  8112 27 7C               BEQ     ESX
+  8114 81 4C               CMPA    #'L
+  8116 26 11               BNE     COMPARACB
+  8118 7E 81 CC            JMP     ESL
+                   COMPARAC
+  ADDR B1 B2 B3 B4 C:\Users\pon_c\OneDrive\Documentos\OneDrive\     PAGE       7
+
+  811B CE 00 50            LDX     #DIR_BASE
+  811E 8F                  XGDX
+  811F DB 42               ADDB    DIGACT
+  8121 8F                  XGDX
+  8122 A6 00               LDAA    $00,X
+  8124 97 40               STAA    CAR
+  8126 7A 00 42            DEC     DIGACT
+                   COMPARACB
+  8129 81 43               CMPA    #'C
+  812B 27 07               BEQ     SALTAESC
+  812D 81 44               CMPA    #'D
+  812F 26 06               BNE     COMPARAM
+  8131 7E 82 47            JMP     ESD
+                   SALTAESC
+  8134 7E 82 06            JMP     ESC
+                   COMPARAM
+  8137 81 4D               CMPA    #'M
+  8139 27 07               BEQ     SALTAESM
+  813B 81 26               CMPA    #'&
+  813D 27 06               BEQ     SALTATERMINA
+  813F 7E 83 24            JMP     ERRORROMANO
+                   SALTAESM
+  8142 7E 82 90            JMP     ESM
+                   SALTATERMINA
+  8145 7E 82 DC            JMP     TERMINA
+                   ESI
+  8148 96 22               LDAA    REF
+  814A 81 03               CMPA    #$03
+  814C 23 03               BLS     CORRECTOI
+  814E 7E 83 24            JMP     ERRORROMANO
+                   CORRECTOI
+  8151 7C 00 21            INC     CONT2
+  8154 7C 00 22            INC     REF
+  8157 7E 80 E9            JMP     COMPARAI
+                   ESV
+  815A 96 22               LDAA    REF
+  815C 81 04               CMPA    #$04
+  815E 23 03               BLS     CORRECTOV
+  8160 7E 83 24            JMP     ERRORROMANO
+                   CORRECTOV
+  8163 96 21               LDAA    CONT2
+  8165 8B 05               ADDA    #$05
+  8167 97 21               STAA    CONT2
+  8169 7C 00 22            INC     REF
+  816C CE 00 50            LDX     #DIR_BASE
+  816F 8F                  XGDX
+  8170 DB 42               ADDB    DIGACT
+  8172 8F                  XGDX
+  8173 A6 00               LDAA    $00,X
+  8175 97 40               STAA    CAR
+  8177 7A 00 42            DEC     DIGACT
+  817A 81 49               CMPA    #'I
+  817C 26 92               BNE     COMPARAXB
+  817E 96 22               LDAA    REF
+  8180 81 01               CMPA    #$01
+  8182 26 09               BNE     SALTAERROR
+  8184 7A 00 21            DEC     CONT2
+  8187 7C 00 22            INC     REF
+  818A 7E 81 02            JMP     COMPARAX
+                   SALTAERROR
+  818D 7E 83 24            JMP     ERRORROMANO
+                   ESX
+  8190 96 23               LDAA    REFT
+  8192 81 03               CMPA    #$03
+  8194 23 03               BLS     CORRECTOX
+  ADDR B1 B2 B3 B4 C:\Users\pon_c\OneDrive\Documentos\OneDrive\     PAGE       8
+
+  8196 7E 83 24            JMP     ERRORROMANO
+                   CORRECTOX
+  8199 96 21               LDAA    CONT2
+  819B 8B 0A               ADDA    #$0A
+  819D 97 21               STAA    CONT2
+  819F 7C 00 22            INC     REF
+  81A2 7C 00 23            INC     REFT
+  81A5 CE 00 50            LDX     #DIR_BASE
+  81A8 8F                  XGDX
+  81A9 DB 42               ADDB    DIGACT
+  81AB 8F                  XGDX
+  81AC A6 00               LDAA    $00,X
+  81AE 97 40               STAA    CAR
+  81B0 7A 00 42            DEC     DIGACT
+  81B3 81 49               CMPA    #'I
+  81B5 26 12               BNE     SALTACOMPARAXB
+  81B7 96 23               LDAA    REFT
+  81B9 81 01               CMPA    #$01
+  81BB 26 D0               BNE     SALTAERROR
+  81BD 7A 00 21            DEC     CONT2
+  81C0 7C 00 22            INC     REF
+  81C3 7C 00 23            INC     REFT
+  81C6 7E 81 02            JMP     COMPARAX
+                   SALTACOMPARAXB
+  81C9 7E 81 10            JMP     COMPARAXB
+                   ESL
+  81CC DC 20               LDD     CONT
+  81CE C3 00 32            ADDD    #$32    * Se le suma 50 (32 en hexadecimal)
+.                  al valor numerico
+  81D1 DD 20               STD     CONT
+  81D3 7C 00 22            INC     REF
+  81D6 7C 00 25            INC     REFL
+  81D9 CE 00 50            LDX     #DIR_BASE
+  81DC 8F                  XGDX
+  81DD DB 42               ADDB    DIGACT
+  81DF 8F                  XGDX
+  81E0 A6 00               LDAA    $00,X
+  81E2 97 40               STAA    CAR
+  81E4 7A 00 42            DEC     DIGACT
+  81E7 81 58               CMPA    #'X
+  81E9 26 18               BNE     SALTACOMPARACB
+  81EB 96 25               LDAA    REFL
+  81ED 81 01               CMPA    #$01
+  81EF 26 9C               BNE     SALTAERROR ##CHECAR LINEA
+  81F1 96 23               LDAA    REFT
+  81F3 81 00               CMPA    #$00
+  81F5 26 96               BNE     SALTAERROR
+  81F7 96 21               LDAA    CONT2
+  81F9 80 0A               SUBA    #$0A
+  81FB 97 21               STAA    CONT2
+  81FD 7C 00 22            INC     REF
+  8200 7E 81 1B            JMP     COMPARAC #MODIFACIN
+                   SALTACOMPARACB
+  8203 7E 81 29            JMP     COMPARACB
+                   ESC
+  8206 96 24               LDAA    REFC
+  8208 81 03               CMPA    #$03
+  820A 23 03               BLS     CORRECTOC
+  820C 7E 83 24            JMP     ERRORROMANO
+                   CORRECTOC
+  820F DC 20               LDD     CONT
+  8211 C3 00 64            ADDD    #$0064  * Se le suma 100 (64 en hexadecimal)
+.                  al valor numerico
+  8214 DD 20               STD     CONT
+  8216 7C 00 22            INC     REF
+  ADDR B1 B2 B3 B4 C:\Users\pon_c\OneDrive\Documentos\OneDrive\     PAGE       9
+
+  8219 7C 00 24            INC     REFC
+  821C CE 00 50            LDX     #DIR_BASE
+  821F 8F                  XGDX
+  8220 DB 42               ADDB    DIGACT
+  8222 8F                  XGDX
+  8223 A6 00               LDAA    $00,X
+  8225 97 40               STAA    CAR
+  8227 7A 00 42            DEC     DIGACT
+  822A 81 58               CMPA    #'X
+  822C 26 D5               BNE     SALTACOMPARACB
+  822E 96 24               LDAA    REFC
+  8230 81 01               CMPA    #$01
+  8232 26 10               BNE     SALTA2ERROR
+  8234 DC 20               LDD     CONT
+  8236 83 00 0A            SUBD    #$0A
+  8239 DD 20               STD     CONT
+  823B 7C 00 22            INC     REF
+  823E 7C 00 24            INC     REFC
+  8241 7E 81 1B            JMP     COMPARAC
+                   SALTA2ERROR
+  8244 7E 83 24            JMP     ERRORROMANO
+                   ESD
+  8247 DC 20               LDD     CONT
+  8249 C3 01 F4            ADDD    #$01F4  * Se le suma 500 (01F4 en
+.                  hexadecimal) al valor numerico
+  824C DD 20               STD     CONT
+  824E 7C 00 22            INC     REF
+  8251 7C 00 26            INC     REFD
+  8254 CE 00 50            LDX     #DIR_BASE
+  8257 8F                  XGDX
+  8258 DB 42               ADDB    DIGACT
+  825A 8F                  XGDX
+  825B A6 00               LDAA    $00,X
+  825D 97 40               STAA    CAR
+  825F 7A 00 42            DEC     DIGACT
+  8262 81 43               CMPA    #'C
+  8264 26 27               BNE     SALTACOMPARAM
+  8266 96 24               LDAA    REFC
+  8268 81 00               CMPA    #$00
+  826A 26 D8               BNE     SALTA2ERROR
+  826C 96 26               LDAA    REFD
+  826E 81 01               CMPA    #$01
+  8270 26 D2               BNE     SALTA2ERROR
+  8272 DC 20               LDD     CONT
+  8274 83 00 64            SUBD    #$0064
+  8277 DD 20               STD     CONT
+  8279 7C 00 22            INC     REF
+  827C 7C 00 24            INC     REFC
+
+  827F CE 00 50            LDX     #DIR_BASE
+  8282 8F                  XGDX
+  8283 DB 42               ADDB    DIGACT
+  8285 8F                  XGDX
+  8286 A6 00               LDAA    $00,X
+  8288 97 40               STAA    CAR
+  828A 7A 00 42            DEC     DIGACT
+
+
+                   SALTACOMPARAM
+  828D 7E 81 37            JMP     COMPARAM
+                   ESM
+  8290 DC 20               LDD     CONT
+  8292 C3 03 E8            ADDD    #$03E8  * Se le suma 1000 (03E8 en
+.                  hexadecimal) al valor numerico
+  8295 DD 20               STD     CONT
+  ADDR B1 B2 B3 B4 C:\Users\pon_c\OneDrive\Documentos\OneDrive\     PAGE      10
+
+  8297 7C 00 22            INC     REF
+  829A 7C 00 27            INC     REFM
+  829D CE 00 50            LDX     #DIR_BASE
+  82A0 8F                  XGDX
+  82A1 DB 42               ADDB    DIGACT
+  82A3 8F                  XGDX
+  82A4 A6 00               LDAA    $00,X
+  82A6 97 40               STAA    CAR
+  82A8 7A 00 42            DEC     DIGACT
+  82AB 81 43               CMPA    #'C
+  82AD 26 22               BNE     NOESC
+  82AF 96 27               LDAA    REFM
+  82B1 81 01               CMPA    #$01
+  82B3 26 6F               BNE     ERRORROMANO
+  82B5 DC 20               LDD     CONT
+  82B7 83 00 64            SUBD    #$0064
+  82BA DD 20               STD     CONT
+  82BC 7C 00 22            INC     REF
+  82BF 7C 00 27            INC     REFM
+  82C2 CE 00 50            LDX     #DIR_BASE
+  82C5 8F                  XGDX
+  82C6 DB 42               ADDB    DIGACT
+  82C8 8F                  XGDX
+  82C9 A6 00               LDAA    $00,X
+  82CB 7A 00 42            DEC     DIGACT
+  82CE 7E 81 37            JMP     COMPARAM
+                   NOESC
+  82D1 96 22               LDAA    REF
+  82D3 81 14               CMPA    #$14    * Revisa si ya no faltan letras por
+.                  comparar
+  82D5 24 05               BHS     TERMINA
+  82D7 A6 00               LDAA    $00,X
+  82D9 7E 81 37            JMP     COMPARAM
+                   TERMINA
+                   *****   CONVIERTE A NUMEROS DECIMALES   *****
+  82DC DC 20               LDD     CONT
+  82DE CE 03 E8            LDX     #$03E8
+  82E1 02                  IDIV
+  82E2 8F                  XGDX
+  82E3 D7 30               STAB    DEGM
+  82E5 8F                  XGDX
+  82E6 CE 00 64            LDX     #$0064
+  82E9 02                  IDIV
+  82EA 8F                  XGDX
+  82EB D7 31               STAB    DEGC
+  82ED 8F                  XGDX
+  82EE CE 00 0A            LDX     #$000A
+  82F1 02                  IDIV
+  82F2 8F                  XGDX
+  82F3 D7 32               STAB    DEGD
+  82F5 8F                  XGDX
+  82F6 D7 33               STAB    DEGU
+                   *****   IMPRIME EL NUMERO DECIMAL       *****
+  82F8 86 00               LDAA    #$00
+  82FA D6 43               LDAB    DIRMEN
+  82FC 8F                  XGDX
+                   IMPRIMEM
+  82FD 96 30               LDAA    DEGM
+  82FF 8B 30               ADDA    #$30
+  8301 81 00               CMPA    #$00
+  8303 27 02               BEQ     IMPRIMEC
+  8305 A7 00               STAA    $00,X
+                   IMPRIMEC
+  8307 96 31               LDAA    DEGC
+  8309 8B 30               ADDA    #$30
+  ADDR B1 B2 B3 B4 C:\Users\pon_c\OneDrive\Documentos\OneDrive\     PAGE      11
+
+  830B 81 00               CMPA    #$00
+  830D 27 02               BEQ     IMPRIMED
+  830F A7 01               STAA    $01,X
+                   IMPRIMED
+  8311 96 32               LDAA    DEGD
+  8313 8B 30               ADDA    #$30
+  8315 81 00               CMPA    #$00
+  8317 27 02               BEQ     IMPRIMEU
+  8319 A7 02               STAA    $02,X
+                   IMPRIMEU
+  831B 96 33               LDAA    DEGU
+  831D 8B 30               ADDA    #$30
+  831F A7 03               STAA    $03,X
+  8321 7E 86 16            JMP     WAIT
+
+
+                   ERRORROMANO
+  8324 CE 8F 00            LDX     #DIRERRO
+  8327 8F                  XGDX
+  8328 DB 34               ADDB    CONTERR
+  832A 8F                  XGDX
+  832B A6 00               LDAA    $00,X
+  832D 81 24               CMPA    #'$
+  832F 27 15               BEQ     SALTA2WAIT
+  8331 97 35               STAA    CARESC
+  8333 CC 00 50            LDD     #DIR_BASE
+  8336 DB 41               ADDB    NODIG
+  8338 DB 34               ADDB    CONTERR
+  833A 5C                  INCB
+  833B 8F                  XGDX
+  833C 96 35               LDAA    CARESC
+  833E A7 00               STAA    $00,X
+  8340 7C 00 34            INC     CONTERR
+  8343 7E 83 24            JMP ERRORROMANO
+                   SALTA2WAIT
+
+  8346 7E 86 16            JMP     WAIT
+
+
+
+                   **********************************************************
+                   **********************************************************
+                   REVISION_DECIMAL
+  8349 E6 00             LDAB $00,X
+  834B 11                CBA
+  834C 27 0A             BEQ PROCESODECIMAL
+  834E 4A                DECA
+  834F 81 00             CMPA #$00
+  8351 26 F6             BNE REVISION_DECIMAL
+  8353 27 00             BEQ SALTAERRORDECIMAL
+                   SALTAERRORDECIMAL
+  8355 7E 85 D1            JMP     ERRORDECIMAL
+
+                   PROCESODECIMAL
+  8358 86 39             LDAA #$39
+  835A 08                INX
+  835B E6 00             LDAB $00,X
+  835D C1 3D             CMPB #$3D
+  835F 27 02             BEQ PROCESODECIMALRANGO
+  8361 26 E6             BNE REVISION_DECIMAL
+
+
+                   PROCESODECIMALRANGO
+
+  8363 96 41             LDAA NODIG
+  ADDR B1 B2 B3 B4 C:\Users\pon_c\OneDrive\Documentos\OneDrive\     PAGE      12
+
+  8365 81 01             CMPA #01
+  8367 27 0E             BEQ EXITODECIMAL
+  8369 81 02             CMPA #02
+  836B 27 0A             BEQ EXITODECIMAL
+  836D 81 03             CMPA #03
+  836F 27 06             BEQ EXITODECIMAL
+  8371 81 04             CMPA #04
+  8373 27 02             BEQ EXITODECIMAL
+  8375 26 DE             BNE SALTAERRORDECIMAL
+
+                   EXITODECIMAL
+  8377 96 41               LDAA    NODIG
+  8379 97 42               STAA    DIGACT
+  837B 7A 00 42            DEC     DIGACT
+  837E 4C                  INCA
+  837F 8B 50               ADDA    #DIR_BASE
+  8381 97 43               STAA    DIRMEN
+
+  8383 86 50               LDAA    #$50
+  8385 9B 42               ADDA    DIGACT
+  8387 8B 02               ADDA    #$02
+  8389 97 36               STAA    DIRLIM
+  838B 7E 85 F3            JMP     LIMPIA
+                   SALTAERRORCERO
+  838E 7E 85 D1            JMP     ERRORDECIMAL
+                   DECIMAL
+  8391 7F 00 42            CLR     DIGACT
+  8394 7F 00 20            CLR     CONT
+  8397 7F 00 28            CLR     CONTM
+  839A 7F 00 29            CLR     CONTC
+  839D 7F 00 2A            CLR     CONTD
+  83A0 7F 00 2B            CLR     CONTU
+                   OBTIENECAR
+  83A3 CE 00 50            LDX     #DIR_BASE
+  83A6 8F                  XGDX
+  83A7 DB 42               ADDB    DIGACT
+  83A9 8F                  XGDX
+  83AA A6 00               LDAA    $00,X
+  83AC 81 3D               CMPA    #'=
+  83AE 27 2B               BEQ     SALTAWAIT
+
+  83B0 80 30               SUBA    #$30
+  83B2 97 40               STAA    CAR
+  83B4 96 41               LDAA    NODIG
+  83B6 81 04               CMPA    #$04
+  83B8 27 24               BEQ     SALTAMILLARES
+  83BA 96 20               LDAA    CONT
+  83BC 81 00               CMPA    #$00
+  83BE 26 03               BNE     COMPARA3
+  83C0 7C 00 20            INC     CONT
+
+
+
+                   COMPARA3
+  83C3 96 41               LDAA    NODIG
+  83C5 81 03               CMPA    #$03
+  83C7 27 18               BEQ     SALTACENTENAS
+  83C9 96 20               LDAA    CONT
+  83CB 81 01               CMPA    #$01
+  83CD 26 03               BNE     COMPARA2
+  83CF 7C 00 20            INC     CONT
+                   COMPARA2
+  83D2 96 41               LDAA    NODIG
+  83D4 81 02               CMPA    #$02
+  83D6 27 36               BEQ     DECENAS
+  ADDR B1 B2 B3 B4 C:\Users\pon_c\OneDrive\Documentos\OneDrive\     PAGE      13
+
+  83D8 7E 83 FE            JMP     SALTAESUNIDAD
+                   SALTAWAIT
+  83DB 7E 86 16            JMP     WAIT
+                   SALTAMILLARES
+  83DE 7E 83 E4            JMP     MILLARES
+                   SALTACENTENAS
+  83E1 7E 84 01            JMP     CENTENAS
+                   MILLARES
+  83E4 96 20               LDAA    CONT
+  83E6 81 00               CMPA    #$00
+  83E8 27 0B               BEQ     SALTAESMILLAR
+  83EA 81 01               CMPA    #$01
+  83EC 27 0A               BEQ     SALTAESCENTENA
+  83EE 81 02               CMPA    #$02
+  83F0 27 09               BEQ     SALTAESDECENA
+  83F2 7E 83 FE            JMP     SALTAESUNIDAD
+                   SALTAESMILLAR
+  83F5 7E 84 17            JMP     ESMILLAR
+                   SALTAESCENTENA
+  83F8 7E 84 42            JMP     ESCENTENA
+                   SALTAESDECENA
+  83FB 7E 84 C8            JMP     ESDECENA
+                   SALTAESUNIDAD
+  83FE 7E 85 4E            JMP     ESUNIDAD
+                   CENTENAS
+  8401 96 20               LDAA    CONT
+  8403 81 01               CMPA    #$01
+  8405 27 F1               BEQ     SALTAESCENTENA
+  8407 81 02               CMPA    #$02
+  8409 27 F0               BEQ     SALTAESDECENA
+  840B 7E 83 FE            JMP     SALTAESUNIDAD
+                   DECENAS
+  840E 96 20               LDAA    CONT
+  8410 81 02               CMPA    #$02
+  8412 27 E7               BEQ     SALTAESDECENA
+  8414 7E 83 FE            JMP     SALTAESUNIDAD
+                   ESMILLAR
+  8417 96 40               LDAA    CAR
+  8419 97 30               STAA    DEGM
+  841B 96 28               LDAA    CONTM
+  841D 91 40               CMPA    CAR
+  841F 25 09               BLO     MMILLAR
+                   FINMILLAR
+  8421 7C 00 20            INC     CONT
+  8424 7C 00 42            INC     DIGACT
+  8427 7E 83 A3            JMP     OBTIENECAR
+                   MMILLAR
+  842A 86 00               LDAA    #$00
+  842C D6 43               LDAB    DIRMEN
+  842E 8F                  XGDX
+  842F 86 4D               LDAA    #'M
+  8431 A7 00               STAA    $00,X
+  8433 7C 00 43            INC     DIRMEN
+  8436 7C 00 28            INC     CONTM
+  8439 96 28               LDAA    CONTM
+  843B 91 40               CMPA    CAR
+  843D 25 EB               BLO     MMILLAR
+  843F 7E 84 21            JMP     FINMILLAR
+                   ESCENTENA
+  8442 96 40               LDAA    CAR
+  8444 97 31               STAA    DEGC
+  8446 81 00               CMPA    #$00
+  8448 27 75               BEQ     FINCENTENA
+  844A 81 05               CMPA    #$05
+  844C 25 1F               BLO     CMENOR5
+  ADDR B1 B2 B3 B4 C:\Users\pon_c\OneDrive\Documentos\OneDrive\     PAGE      14
+
+  844E 81 09               CMPA    #$09
+  8450 26 58               BNE     CNOES9
+  8452 86 00               LDAA    #$00
+  8454 D6 43               LDAB    DIRMEN
+  8456 8F                  XGDX
+  8457 86 43               LDAA    #'C
+  8459 A7 00               STAA    $00,X
+  845B 7C 00 43            INC     DIRMEN
+  845E 86 00               LDAA    #$00
+  8460 D6 43               LDAB    DIRMEN
+  8462 8F                  XGDX
+  8463 86 4D               LDAA    #'M
+  8465 A7 00               STAA    $00,X
+  8467 7C 00 43            INC     DIRMEN
+  846A 7E 84 BF            JMP     FINCENTENA
+                   CMENOR5
+  846D 81 04               CMPA    #$04
+  846F 27 06               BEQ     CES4
+  8471 96 29               LDAA    CONTC
+  8473 91 40               CMPA    CAR
+  8475 25 1B               BLO     CCENTENA
+                   CES4
+  8477 86 00               LDAA    #$00
+  8479 D6 43               LDAB    DIRMEN
+  847B 8F                  XGDX
+  847C 86 43               LDAA    #'C
+  847E A7 00               STAA    $00,X
+  8480 7C 00 43            INC     DIRMEN
+  8483 86 00               LDAA    #$00
+  8485 D6 43               LDAB    DIRMEN
+  8487 8F                  XGDX
+  8488 86 44               LDAA    #'D
+  848A A7 00               STAA    $00,X
+  848C 7C 00 43            INC     DIRMEN
+  848F 7E 84 BF            JMP     FINCENTENA
+                   CCENTENA
+  8492 86 00               LDAA    #$00
+  8494 D6 43               LDAB    DIRMEN
+  8496 8F                  XGDX
+  8497 86 43               LDAA    #'C
+  8499 A7 00               STAA    $00,X
+  849B 7C 00 43            INC     DIRMEN
+  849E 7C 00 29            INC     CONTC
+                   CCENTENA5
+  84A1 96 29               LDAA    CONTC
+  84A3 91 40               CMPA    CAR
+  84A5 25 EB               BLO     CCENTENA
+  84A7 7E 84 BF            JMP     FINCENTENA
+                   CNOES9
+  84AA 86 00               LDAA    #$00
+  84AC D6 43               LDAB    DIRMEN
+  84AE 8F                  XGDX
+  84AF 86 44               LDAA    #'D
+  84B1 A7 00               STAA    $00,X
+  84B3 7C 00 43            INC     DIRMEN
+  84B6 96 40               LDAA    CAR
+  84B8 80 05               SUBA    #$05
+  84BA 97 40               STAA    CAR
+  84BC 7E 84 A1            JMP     CCENTENA5 #MODIFICADO
+                   FINCENTENA
+  84BF 7C 00 20            INC     CONT
+  84C2 7C 00 42            INC     DIGACT
+  84C5 7E 83 A3            JMP     OBTIENECAR
+                   ESDECENA
+  84C8 96 40               LDAA    CAR
+  ADDR B1 B2 B3 B4 C:\Users\pon_c\OneDrive\Documentos\OneDrive\     PAGE      15
+
+  84CA 97 32               STAA    DEGD
+  84CC 81 00               CMPA    #$00
+  84CE 27 75               BEQ     FINDECENA
+  84D0 81 05               CMPA    #$05
+  84D2 25 1F               BLO     DMENOR5
+  84D4 81 09               CMPA    #$09
+  84D6 26 58               BNE     DNOES9
+  84D8 86 00               LDAA    #$00
+  84DA D6 43               LDAB    DIRMEN
+  84DC 8F                  XGDX
+  84DD 86 58               LDAA    #'X
+  84DF A7 00               STAA    $00,X
+  84E1 7C 00 43            INC     DIRMEN
+  84E4 86 00               LDAA    #$00
+  84E6 D6 43               LDAB    DIRMEN
+  84E8 8F                  XGDX
+  84E9 86 43               LDAA    #'C
+  84EB A7 00               STAA    $00,X
+  84ED 7C 00 43            INC     DIRMEN
+  84F0 7E 85 45            JMP     FINDECENA
+                   DMENOR5
+  84F3 81 04               CMPA    #$04
+  84F5 27 06               BEQ     DES4
+  84F7 96 2A               LDAA    CONTD
+  84F9 91 40               CMPA    CAR
+  84FB 25 1B               BLO     XDECENA
+                   DES4
+  84FD 86 00               LDAA    #$00
+  84FF D6 43               LDAB    DIRMEN
+  8501 8F                  XGDX
+  8502 86 58               LDAA    #'X
+  8504 A7 00               STAA    $00,X
+  8506 7C 00 43            INC     DIRMEN
+  8509 86 00               LDAA    #$00
+  850B D6 43               LDAB    DIRMEN
+  850D 8F                  XGDX
+  850E 86 4C               LDAA    #'L
+  8510 A7 00               STAA    $00,X
+  8512 7C 00 43            INC     DIRMEN
+  8515 7E 85 45            JMP     FINDECENA
+                   XDECENA
+  8518 86 00               LDAA    #$00
+  851A D6 43               LDAB    DIRMEN
+  851C 8F                  XGDX
+  851D 86 58               LDAA    #'X
+  851F A7 00               STAA    $00,X
+  8521 7C 00 43            INC     DIRMEN
+  8524 7C 00 2A            INC     CONTD
+                   XDECENA5
+  8527 96 2A               LDAA    CONTD
+  8529 91 40               CMPA    CAR
+  852B 25 EB               BLO     XDECENA
+  852D 7E 85 45            JMP     FINDECENA
+                   DNOES9
+  8530 86 00               LDAA    #$00
+  8532 D6 43               LDAB    DIRMEN
+  8534 8F                  XGDX
+  8535 86 4C               LDAA    #'L
+  8537 A7 00               STAA    $00,X
+  8539 7C 00 43            INC     DIRMEN
+  853C 96 40               LDAA    CAR
+  853E 80 05               SUBA    #$05
+  8540 97 40               STAA    CAR
+  8542 7E 85 27            JMP     XDECENA5
+                   FINDECENA
+  ADDR B1 B2 B3 B4 C:\Users\pon_c\OneDrive\Documentos\OneDrive\     PAGE      16
+
+  8545 7C 00 20            INC     CONT
+  8548 7C 00 42            INC     DIGACT
+  854B 7E 83 A3            JMP     OBTIENECAR
+                   ESUNIDAD
+  854E 96 40               LDAA    CAR
+  8550 97 33               STAA    DEGU
+  8552 81 00               CMPA    #$00
+  8554 27 72               BEQ     FINUNIDAD
+  8556 81 05               CMPA    #$05
+  8558 25 1F               BLO     UMENOR5
+  855A 81 09               CMPA    #$09
+  855C 26 55               BNE     UNOES9
+  855E 86 00               LDAA    #$00
+  8560 D6 43               LDAB    DIRMEN
+  8562 8F                  XGDX
+  8563 86 49               LDAA    #'I
+  8565 A7 00               STAA    $00,X
+  8567 7C 00 43            INC     DIRMEN
+  856A 86 00               LDAA    #$00
+  856C D6 43               LDAB    DIRMEN
+  856E 8F                  XGDX
+  856F 86 58               LDAA    #'X
+  8571 A7 00               STAA    $00,X
+  8573 7C 00 43            INC     DIRMEN
+  8576 7E 85 C8            JMP     FINUNIDAD
+                   UMENOR5
+  8579 81 04               CMPA    #$04
+  857B 27 06               BEQ     UES4
+  857D 96 2B               LDAA    CONTU
+  857F 91 40               CMPA    CAR
+  8581 25 18               BLO     IUNIDAD
+                   UES4
+  8583 86 00               LDAA    #$00
+  8585 D6 43               LDAB    DIRMEN
+  8587 8F                  XGDX
+  8588 86 49               LDAA    #'I
+  858A A7 00               STAA    $00,X
+  858C 7C 00 43            INC     DIRMEN
+  858F 86 00               LDAA    #$00
+  8591 D6 43               LDAB    DIRMEN
+  8593 8F                  XGDX
+  8594 86 56               LDAA    #'V
+  8596 A7 00               STAA    $00,X
+  8598 7E 85 C8            JMP     FINUNIDAD
+                   IUNIDAD
+  859B 86 00               LDAA    #$00
+  859D D6 43               LDAB    DIRMEN
+  859F 8F                  XGDX
+  85A0 86 49               LDAA    #'I
+  85A2 A7 00               STAA    $00,X
+  85A4 7C 00 43            INC     DIRMEN
+  85A7 7C 00 2B            INC     CONTU
+                   IUNIDAD5
+  85AA 96 2B               LDAA    CONTU
+  85AC 91 40               CMPA    CAR
+  85AE 25 EB               BLO     IUNIDAD
+  85B0 7E 85 45            JMP     FINDECENA
+                   UNOES9
+  85B3 86 00               LDAA    #$00
+  85B5 D6 43               LDAB    DIRMEN
+  85B7 8F                  XGDX
+  85B8 86 56               LDAA    #'V
+  85BA A7 00               STAA    $00,X
+  85BC 7C 00 43            INC     DIRMEN
+  85BF 96 40               LDAA    CAR
+  ADDR B1 B2 B3 B4 C:\Users\pon_c\OneDrive\Documentos\OneDrive\     PAGE      17
+
+  85C1 80 05               SUBA    #$05
+  85C3 97 40               STAA    CAR
+  85C5 7E 85 AA            JMP     IUNIDAD5
+                   FINUNIDAD
+  85C8 7C 00 20            INC     CONT
+  85CB 7C 00 42            INC     DIGACT
+  85CE 7E 83 A3            JMP     OBTIENECAR
+
+                   ERRORDECIMAL
+  85D1 CE 8F 2F            LDX     #DIRERDE
+  85D4 8F                  XGDX
+  85D5 DB 34               ADDB    CONTERR
+  85D7 8F                  XGDX
+  85D8 A6 00               LDAA    $00,X
+  85DA 81 24               CMPA    #'$
+  85DC 27 38               BEQ     WAIT
+  85DE 97 35               STAA    CARESC
+  85E0 CC 00 50            LDD     #DIR_BASE
+  85E3 DB 41               ADDB    NODIG
+  85E5 DB 34               ADDB    CONTERR
+  85E7 5C                  INCB
+  85E8 8F                  XGDX
+  85E9 96 35               LDAA    CARESC
+  85EB A7 00               STAA    $00,X
+  85ED 7C 00 34            INC     CONTERR
+  85F0 7E 85 D1            JMP ERRORDECIMAL
+
+                   LIMPIA
+  85F3 86 00               LDAA    #$00
+  85F5 D6 36               LDAB    DIRLIM
+  85F7 8F                  XGDX
+  85F8 86 00               LDAA    #$00
+  85FA A7 00               STAA    $00,X
+  85FC 8F                  XGDX
+  85FD 7C 00 36            INC     DIRLIM
+  8600 96 36               LDAA    DIRLIM
+  8602 81 A0               CMPA    #$A0
+  8604 25 ED               BLO     LIMPIA
+
+  8606 86 26               LDAA    #'&
+  8608 97 4F               STAA    $4F     * Se guarda un caracter reconocible
+.                  para terminar de comparar
+  860A 96 37               LDAA    TIPO
+  860C 81 52               CMPA    #'R
+  860E 26 03               BNE     SALTALIDECIMAL
+  8610 7E 80 D1            JMP     ROMANO
+                   SALTALIDECIMAL
+  8613 7E 83 91            JMP     DECIMAL
+
+                   WAIT
+
+
+
+                   ***********************************************************
+                   *Codigo de escritura
+                   ***********************************************************
+
+
+                   ESCRITOMILLARINICIAL
+                   *MILLARES EN MAYUSCULA
+  8616 CE 00 70            LDX #DIR_LETRAS
+  8619 C6 28               LDAB #$28     *(
+  861B E7 00               STAB $00,X
+  861D 08                  INX
+  861E 96 30               LDAA    DEGM
+  ADDR B1 B2 B3 B4 C:\Users\pon_c\OneDrive\Documentos\OneDrive\     PAGE      18
+
+  8620 81 00               CMPA    #$00
+  8622 27 66               BEQ     ESCRITOCENTENAINICIAL
+
+  8624 C6 4D               LDAB    #'M
+  8626 18 CE 90 30         LDY  #$9030
+  862A 81 01               CMPA    #$01
+  862C 27 4E               BEQ   CICLOESCRITO  *MIL
+
+  862E C6 44               LDAB    #'D
+  8630 18 CE 90 04         LDY  #$9004
+  8634 81 02               CMPA    #$02
+  8636 27 44               BEQ   CICLOESCRITO   *DOS MIL
+
+  8638 C6 54               LDAB    #'T
+  863A 18 CE 90 08         LDY  #$9008
+  863E 81 03               CMPA    #$03
+  8640 27 3A               BEQ   CICLOESCRITO   *TRES MIL
+
+  8642 C6 43               LDAB    #'C
+  8644 18 CE 90 0D         LDY  #$900D
+  8648 81 04               CMPA    #$04
+  864A 27 30               BEQ   CICLOESCRITO    *CUATRO MIL
+
+  864C C6 43               LDAB    #'C
+  864E 18 CE 90 14         LDY  #$9014
+  8652 81 05               CMPA    #$05
+  8654 27 26               BEQ   CICLOESCRITO    *CINCO MIL
+
+  8656 C6 53               LDAB    #'S
+  8658 18 CE 90 1A         LDY  #$901A
+  865C 81 06               CMPA    #$06
+  865E 27 1C               BEQ   CICLOESCRITO    *SEIS MIL
+
+  8660 18 CE 90 1A         LDY  #$901A
+  8664 81 07               CMPA    #$07
+  8666 27 14               BEQ   CICLOESCRITO    *SIETE MIL
+
+  8668 C6 4F               LDAB    #'O
+  866A 18 CE 90 25         LDY  #$9025
+  866E 81 08               CMPA    #$08
+  8670 27 0A               BEQ   CICLOESCRITO    *OCHO MIL
+
+  8672 C6 4E               LDAB    #'N
+  8674 18 CE 90 2A         LDY  #$902A
+  8678 81 09               CMPA    #$09
+  867A 27 00               BEQ   CICLOESCRITO    *NUEVE MIL
+
+                   CICLOESCRITO
+  867C E7 00               STAB  $00,X
+  867E 08                  INX
+  867F 18 08               INY
+  8681 18 E6 00            LDAB  $00,Y
+  8684 C1 20               CMPB #$20
+  8686 26 F4               BNE CICLOESCRITO
+  8688 27 03               BEQ ESCRIBEMIL
+
+                   ESCRITOCENTENAINICIAL
+  868A 7E 86 B5            JMP ESCRITOCENTENAINICIAL2
+
+                   *ESCRIBE MIL PARA LOS CASOS MAYORES A 2000
+                   ESCRIBEMIL
+  868D 96 30               LDAA    DEGM
+  868F 81 01               CMPA #$01
+  8691 08                  INX
+  8692 C6 20               LDAB #$20
+  ADDR B1 B2 B3 B4 C:\Users\pon_c\OneDrive\Documentos\OneDrive\     PAGE      19
+
+  8694 E7 00               STAB $00,X
+  8696 08                  INX
+  8697 81 01               CMPA #$01
+  8699 27 17               BEQ ESCRITOCENTENAAUX
+  869B C6 6D               LDAB #$6D      *M
+  869D E7 00               STAB $00,X
+  869F 08                  INX
+  86A0 C6 69               LDAB #$69      *I
+  86A2 E7 00               STAB $00,X
+  86A4 08                  INX
+  86A5 C6 6C               LDAB #$6C      *L
+  86A7 E7 00               STAB $00,X
+  86A9 08                  INX
+  86AA C6 20               LDAB #$20      *ESPACIO
+  86AC E7 00               STAB $00,X
+  86AE 08                  INX
+  86AF 7E 86 B2            JMP ESCRITOCENTENAAUX
+
+                   ESCRITOCENTENAAUX
+  86B2 7E 89 09            JMP ESCRITOCENTENA
+
+                   *ESCRITURA DE CENTENAS INICIALES
+
+
+
+                   ESCRITOCENTENAINICIAL2
+                   *CENTENAS EN MAYUSCULA
+
+  86B5 96 31               LDAA    DEGC
+  86B7 81 00               CMPA    #$00
+  86B9 27 58               BEQ     ESCRITODECENAINICIAL
+
+  86BB C6 43               LDAB    #'C
+  86BD 18 CE 90 9B         LDY  #$909B
+  86C1 81 01               CMPA    #$01
+  86C3 27 51               BEQ   CICLOESCRITOCIEN  *CIEN
+
+  86C5 C6 44               LDAB    #'D
+  86C7 18 CE 90 89         LDY  #$9089
+  86CB 81 02               CMPA    #$02
+  86CD 27 60               BEQ   CICLOESCRITOC *DOSCIENTOS
+
+  86CF C6 54               LDAB    #'T
+  86D1 18 CE 90 7D         LDY  #$907D
+  86D5 81 03               CMPA    #$03
+  86D7 27 56               BEQ   CICLOESCRITOC   *TRESCIENTOS
+
+  86D9 C6 43               LDAB    #'C
+  86DB 18 CE 90 6F         LDY  #$906F
+  86DF 81 04               CMPA    #$04
+  86E1 27 4C               BEQ   CICLOESCRITOC    *CUATROCIENTOS
+
+  86E3 C6 51               LDAB    #'Q
+  86E5 18 CE 90 64         LDY  #$9064
+  86E9 81 05               CMPA    #$05
+  86EB 27 42               BEQ   CICLOESCRITOC    *QUINIENTOS
+
+  86ED C6 53               LDAB    #'S
+  86EF 18 CE 90 58         LDY  #$9058
+  86F3 81 06               CMPA    #$06
+  86F5 27 38               BEQ   CICLOESCRITOC    *SEISCIENTOS
+
+  86F7 18 CE 90 4C         LDY  #$904C
+  86FB 81 07               CMPA    #$07
+  86FD 27 30               BEQ   CICLOESCRITOC    *SETECIENTOS
+  ADDR B1 B2 B3 B4 C:\Users\pon_c\OneDrive\Documentos\OneDrive\     PAGE      20
+
+
+  86FF C6 4F               LDAB    #'O
+  8701 18 CE 90 40         LDY  #$9040
+  8705 81 08               CMPA    #$08
+  8707 27 26               BEQ   CICLOESCRITOC    *OCHOCIENTOS
+
+  8709 C6 4E               LDAB    #'N
+  870B 18 CE 90 34         LDY  #$9034
+  870F 81 09               CMPA    #$09
+  8711 27 1C               BEQ   CICLOESCRITOC    *NOVECIENTOS
+
+                   ESCRITODECENAINICIAL
+  8713 7E 87 45          JMP ESCRITODECENAINICIAL2
+
+                   CICLOESCRITOCIEN
+  8716 96 32               LDAA DEGD
+  8718 81 00               CMPA #$00
+  871A 97 32               STAA DEGD
+  871C 26 0A               BNE CICLOESCRITOCIENTO
+
+                   CICLOESCRITOCIENUNI
+  871E 96 33               LDAA DEGU
+  8720 81 00               CMPA #$00
+  8722 97 33               STAA DEGU
+  8724 26 02               BNE CICLOESCRITOCIENTO
+  8726 27 07               BEQ  CICLOESCRITOC
+                   CICLOESCRITOCIENTO
+  8728 18 CE 90 94         LDY #$9094
+  872C 7E 87 2F            JMP CICLOESCRITOC
+
+                   CICLOESCRITOC
+
+  872F E7 00               STAB  $00,X
+  8731 08                  INX
+  8732 18 08               INY
+  8734 18 E6 00            LDAB  $00,Y
+  8737 C1 20               CMPB #$20
+  8739 26 F4               BNE CICLOESCRITOC
+  873B 27 00               BEQ DECSALTO
+
+                   DECSALTO
+  873D C6 20               LDAB #$20
+  873F E7 00               STAB $00,X
+  8741 08                  INX
+  8742 7E 89 76            JMP ESCRITODECENA
+
+                   ESCRITODECENAINICIAL2
+
+  8745 96 32               LDAA    DEGD
+  8747 81 00               CMPA    #$00
+  8749 27 56               BEQ     ESCRITOUNIDADINICIALAUX
+
+  874B C6 44               LDAB    #'D
+  874D 18 CE 91 33         LDY  #$9133
+  8751 81 01               CMPA    #$01
+  8753 27 4F               BEQ   CICLOESCRITODIEZAUX  *DIEZ
+
+  8755 C6 56               LDAB    #'V
+  8757 18 CE 90 DC         LDY  #$90DC
+  875B 81 02               CMPA    #$02
+  875D 27 48               BEQ   CICLOESCRITOVEINTEAUX  *VEINTE
+
+  875F C6 54               LDAB    #'T
+  8761 18 CE 90 D4         LDY  #$90D4
+  8765 81 03               CMPA    #$03
+  ADDR B1 B2 B3 B4 C:\Users\pon_c\OneDrive\Documentos\OneDrive\     PAGE      21
+
+  8767 27 41               BEQ   CICLOESCRITOD   *TREINTA
+
+  8769 C6 43               LDAB    #'C
+  876B 18 CE 90 CA         LDY  #$90CA
+  876F 81 04               CMPA    #$04
+  8771 27 37               BEQ   CICLOESCRITOD    *CUARENTA
+
+
+  8773 18 CE 90 C0         LDY  #$90C0
+  8777 81 05               CMPA    #$05
+  8779 27 2F               BEQ   CICLOESCRITOD    *CINCUENTA
+
+  877B C6 53               LDAB    #'S
+  877D 18 CE 90 B8         LDY  #$90B8
+  8781 81 06               CMPA    #$06
+  8783 27 25               BEQ   CICLOESCRITOD    *SESENTA
+
+  8785 18 CE 90 B0         LDY  #$90B0
+  8789 81 07               CMPA    #$07
+  878B 27 1D               BEQ   CICLOESCRITOD    *SETENTA
+
+  878D C6 4F               LDAB    #'O
+  878F 18 CE 90 A8         LDY  #$90A8
+  8793 81 08               CMPA    #$08
+  8795 27 13               BEQ   CICLOESCRITOD    *OCHENTA
+
+  8797 C6 4E               LDAB    #'N
+  8799 18 CE 90 A0         LDY  #$90A0
+  879D 81 09               CMPA    #$09
+  879F 27 09               BEQ   CICLOESCRITOD    *NOVENTA
+
+                   ESCRITOUNIDADINICIALAUX
+  87A1 7E 88 9A            JMP ESCRITOUNIDADINICIAL
+                   CICLOESCRITODIEZAUX
+  87A4 7E 87 D3            JMP CICLOESCRITODIEZ
+                   CICLOESCRITOVEINTEAUX
+  87A7 7E 88 3E            JMP CICLOESCRITOVEINTE
+
+                   CICLOESCRITOD
+  87AA E7 00               STAB  $00,X
+  87AC 08                  INX
+  87AD 18 08               INY
+  87AF 18 E6 00            LDAB  $00,Y
+  87B2 C1 20               CMPB #$20
+  87B4 26 F4               BNE CICLOESCRITOD
+  87B6 27 00               BEQ ESCRIBEY
+                   ESCRIBEY
+  87B8 96 33               LDAA DEGU
+  87BA 81 00               CMPA #$00
+  87BC 27 12               BEQ  WAIT5
+  87BE C6 20               LDAB #$20      *ESPACIO
+  87C0 E7 00               STAB $00,X
+  87C2 08                  INX
+  87C3 C6 79               LDAB #$79      *Y
+  87C5 E7 00               STAB $00,X
+  87C7 08                  INX
+  87C8 C6 20               LDAB #$20      *ESPACIO
+  87CA E7 00               STAB $00,X
+  87CC 08                  INX
+  87CD 7E 8A A8            JMP   ESCRITOUNIDAD
+                   WAIT5
+  87D0 7E 8B 02            JMP WAIT2
+
+                   CICLOESCRITODIEZ
+
+  ADDR B1 B2 B3 B4 C:\Users\pon_c\OneDrive\Documentos\OneDrive\     PAGE      22
+
+  87D3 96 33               LDAA    DEGU
+  87D5 C6 44               LDAB    #'D
+  87D7 81 00               CMPA    #$00
+  87D9 27 54               BEQ   CICLOESCRITOUNIAUX   *DIEZ
+
+  87DB C6 4F               LDAB    #'O
+  87DD 18 CE 91 2E         LDY  #$912E
+  87E1 81 01               CMPA    #$01
+  87E3 27 4A               BEQ   CICLOESCRITOUNIAUX    *ONCE
+
+  87E5 C6 44               LDAB    #'D
+  87E7 18 CE 91 29         LDY  #$9129
+  87EB 81 02               CMPA    #$02
+  87ED 27 40               BEQ   CICLOESCRITOUNIAUX     *DOCE
+
+
+  87EF C6 54               LDAB    #'T
+  87F1 18 CE 91 23         LDY  #$9123
+  87F5 81 03               CMPA    #$03
+  87F7 27 36               BEQ   CICLOESCRITOUNIAUX     *TRECE
+
+  87F9 C6 43               LDAB    #'C
+  87FB 18 CE 91 1B         LDY  #$911B
+  87FF 81 04               CMPA    #$04
+  8801 27 2C               BEQ   CICLOESCRITOUNIAUX     *CATORCE
+
+  8803 C6 51               LDAB    #'Q
+  8805 18 CE 91 14         LDY  #$9114
+  8809 81 05               CMPA    #$05
+  880B 27 22               BEQ   CICLOESCRITOUNIAUX      *QUINCE
+
+  880D C6 44               LDAB    #'D
+  880F 18 CE 91 0A         LDY  #$910A
+  8813 81 06               CMPA    #$06
+  8815 27 18               BEQ   CICLOESCRITOUNIAUX       *DIECISEIS
+
+  8817 18 CE 90 FF         LDY  #$90FF
+  881B 81 07               CMPA    #$07
+  881D 27 10               BEQ   CICLOESCRITOUNIAUX      *DIECISIETE
+  881F 18 CE 90 F5         LDY  #$90F5
+  8823 81 08               CMPA    #$08
+  8825 27 08               BEQ   CICLOESCRITOUNIAUX      *DIECIOCHO
+
+  8827 18 CE 90 EA         LDY  #$90EA
+  882B 81 09               CMPA    #$09
+  882D 27 00               BEQ   CICLOESCRITOUNIAUX       *DIECINUEVE
+
+                   CICLOESCRITOUNIAUX
+  882F E7 00               STAB  $00,X
+  8831 08                  INX
+  8832 18 08               INY
+  8834 18 E6 00            LDAB  $00,Y
+  8837 C1 20               CMPB #$20
+  8839 26 F4               BNE CICLOESCRITOUNIAUX
+  883B 7E 8B 02            JMP WAIT2
+
+
+                   CICLOESCRITOVEINTE
+
+  883E 96 33               LDAA    DEGU
+  8840 C6 56               LDAB    #'V
+  8842 81 00               CMPA    #$00
+  8844 27 E9               BEQ   CICLOESCRITOUNIAUX     *VEINTE
+
+  8846 18 CE 91 38         LDY  #$9138
+  ADDR B1 B2 B3 B4 C:\Users\pon_c\OneDrive\Documentos\OneDrive\     PAGE      23
+
+  884A 81 01               CMPA    #$01
+  884C 27 E1               BEQ   CICLOESCRITOUNIAUX      *VEINTIUNO
+
+
+  884E 18 CE 91 42         LDY  #$9142
+  8852 81 02               CMPA    #$02
+  8854 27 D9               BEQ   CICLOESCRITOUNIAUX       *VEINTIDOS
+
+
+
+  8856 18 CE 91 4C         LDY  #$914C
+  885A 81 03               CMPA    #$03
+  885C 27 D1               BEQ   CICLOESCRITOUNIAUX     *VEINTITRES
+
+
+  885E 18 CE 91 57         LDY  #$9157
+  8862 81 04               CMPA    #$04
+  8864 27 C9               BEQ   CICLOESCRITOUNIAUX     *VEINTICUATRO
+
+
+  8866 18 CE 91 64         LDY  #$9164
+  886A 81 05               CMPA    #$05
+  886C 27 C1               BEQ   CICLOESCRITOUNIAUX     *VEINTICINCO
+
+
+  886E 18 CE 91 70         LDY  #$9170
+  8872 81 06               CMPA    #$06
+  8874 27 B9               BEQ   CICLOESCRITOUNIAUX      *VEINTISEIS
+
+
+  8876 18 CE 91 7B         LDY  #$917B
+  887A 81 07               CMPA    #$07
+  887C 27 B1               BEQ   CICLOESCRITOUNIAUX       *VEINTISIETE
+
+  887E 18 CE 91 87         LDY  #$9187
+  8882 81 08               CMPA    #$08
+  8884 27 A9               BEQ   CICLOESCRITOUNIAUX       *VEINTIOCHO
+
+  8886 18 CE 91 92         LDY  #$9192
+  888A 81 09               CMPA    #$09
+  888C 27 A1               BEQ   CICLOESCRITOUNIAUX       *VEINTINUEVE
+
+
+                   UNISALTO
+  888E C6 20               LDAB #$20
+  8890 E7 00               STAB $00,X
+  8892 08                  INX
+  8893 D6 33               LDAB DEGU
+  8895 C1 00               CMPB #$00
+  8897 7E 8A A8            JMP ESCRITOUNIDAD
+
+
+                   ESCRITOUNIDADINICIAL
+
+
+  889A 96 33               LDAA    DEGU
+  889C 81 00               CMPA    #$00
+  889E 27 58               BEQ     WAIT4
+  88A0 C6 55               LDAB    #'U
+  88A2 18 CE 90 00         LDY  #$9000
+  88A6 81 01               CMPA    #$01
+  88A8 27 51               BEQ   CICLOESCRITOUNI  *UNO
+
+  88AA C6 44               LDAB    #'D
+  88AC 18 CE 90 04         LDY  #$9004
+  ADDR B1 B2 B3 B4 C:\Users\pon_c\OneDrive\Documentos\OneDrive\     PAGE      24
+
+  88B0 81 02               CMPA    #$02
+  88B2 27 47               BEQ   CICLOESCRITOUNI   *DOS
+
+  88B4 C6 54               LDAB    #'T
+  88B6 18 CE 90 08         LDY  #$9008
+  88BA 81 03               CMPA    #$03
+  88BC 27 3D               BEQ   CICLOESCRITOUNI   *TRES
+
+  88BE C6 43               LDAB    #'C
+  88C0 18 CE 90 0D         LDY  #$900D
+  88C4 81 04               CMPA    #$04
+  88C6 27 33               BEQ   CICLOESCRITOUNI    *CUATRO
+
+  88C8 C6 43               LDAB    #'C
+  88CA 18 CE 90 14         LDY  #$9014
+  88CE 81 05               CMPA    #$05
+  88D0 27 29               BEQ   CICLOESCRITOUNI    *CINCO
+
+  88D2 C6 53               LDAB    #'S
+  88D4 18 CE 90 1A         LDY  #$901A
+  88D8 81 06               CMPA    #$06
+  88DA 27 1F               BEQ   CICLOESCRITOUNI    *SEIS
+
+  88DC 18 CE 90 1F         LDY  #$901F
+  88E0 81 07               CMPA    #$07
+  88E2 27 17               BEQ   CICLOESCRITOUNI    *SIETE
+
+  88E4 C6 4F               LDAB    #'O
+  88E6 18 CE 90 25         LDY  #$9025
+  88EA 81 08               CMPA    #$08
+  88EC 27 0D               BEQ   CICLOESCRITOUNI    *OCHO
+
+  88EE C6 4E               LDAB    #'N
+  88F0 18 CE 90 2A         LDY  #$902A
+  88F4 81 09               CMPA    #$09
+  88F6 27 03               BEQ   CICLOESCRITOUNI    *NUEVE
+
+
+                   WAIT4
+
+  88F8 7E 8B 02            JMP WAIT2
+
+                   CICLOESCRITOUNI
+  88FB E7 00               STAB  $00,X
+  88FD 08                  INX
+  88FE 18 08               INY
+  8900 18 E6 00            LDAB  $00,Y
+  8903 C1 20               CMPB #$20
+  8905 26 F4               BNE CICLOESCRITOUNI
+  8907 27 EF               BEQ WAIT4
+
+
+
+
+                   *ESCRITURA DE CENTENAS
+                   ESCRITOCENTENA
+
+  8909 96 31               LDAA    DEGC
+  890B 81 00               CMPA    #$00
+  890D 27 67               BEQ     ESCRITODECENA
+  890F 18 CE 90 9B         LDY  #$909B
+  8913 81 01               CMPA    #$01
+  8915 27 3E               BEQ   CICLOESCRITOCIENAUX  *CIEN
+
+
+  ADDR B1 B2 B3 B4 C:\Users\pon_c\OneDrive\Documentos\OneDrive\     PAGE      25
+
+  8917 18 CE 90 89         LDY  #$9089
+  891B 81 02               CMPA    #$02
+  891D 27 4B               BEQ   CICLOESCRITOCEN  *DOSCIENTOS
+
+
+  891F 18 CE 90 7D         LDY  #$907D
+  8923 81 03               CMPA    #$03
+  8925 27 43               BEQ   CICLOESCRITOCEN   *TRESCIENTOS
+
+
+  8927 18 CE 90 6F         LDY  #$906F
+  892B 81 04               CMPA    #$04
+  892D 27 3B               BEQ   CICLOESCRITOCEN    *CUATROCIENTOS
+
+
+  892F 18 CE 90 64         LDY  #$9064
+  8933 81 05               CMPA    #$05
+  8935 27 33               BEQ   CICLOESCRITOCEN    *QUINIENTOS
+
+
+  8937 18 CE 90 58         LDY  #$9058
+  893B 81 06               CMPA    #$06
+  893D 27 2B               BEQ   CICLOESCRITOCEN    *SEISCIENTOS
+
+
+  893F 81 07               CMPA    #$07
+  8941 27 27               BEQ   CICLOESCRITOCEN    *SETECIENTOS
+
+
+  8943 18 CE 90 40         LDY  #$9040
+  8947 81 08               CMPA    #$08
+  8949 27 1F               BEQ   CICLOESCRITOCEN    *OCHOCIENTOS
+
+  894B C6 4E               LDAB    #'N
+  894D 18 CE 90 34         LDY  #$9034
+  8951 81 09               CMPA    #$09
+  8953 27 15               BEQ   CICLOESCRITOCEN    *NOVECIENTOS
+
+
+                   CICLOESCRITOCIENAUX
+  8955 96 32               LDAA DEGD
+  8957 81 00               CMPA #$00
+
+  8959 26 08               BNE CICLOESCRITOCIENTOAUX
+
+                   CICLOESCRITOCIENUNIAUX
+  895B 96 33               LDAA DEGU
+  895D 81 00               CMPA #$00
+  895F 26 02               BNE CICLOESCRITOCIENTOAUX
+  8961 27 07               BEQ  CICLOESCRITOCEN
+                   CICLOESCRITOCIENTOAUX
+  8963 18 CE 90 94         LDY #$9094
+  8967 7E 89 6A            JMP CICLOESCRITOCEN
+
+
+                   CICLOESCRITOCEN
+
+
+  896A 18 E6 00            LDAB  $00,Y
+  896D E7 00               STAB  $00,X
+  896F 08                  INX
+  8970 18 08               INY
+  8972 C1 20               CMPB #$20
+  8974 26 F4               BNE CICLOESCRITOCEN
+
+  ADDR B1 B2 B3 B4 C:\Users\pon_c\OneDrive\Documentos\OneDrive\     PAGE      26
+
+
+                   ESCRITODECENA
+  8976 96 32               LDAA    DEGD
+  8978 81 00               CMPA    #$00
+  897A 27 48               BEQ     ESCRITOUNIDADAYUDA
+
+  897C 18 CE 91 33         LDY  #$9133
+  8980 81 01               CMPA    #$01
+  8982 27 43               BEQ   CICLOESCRITODIEZ2AUX  *DIEZ
+
+
+  8984 18 CE 90 DC         LDY  #$90DC
+  8988 81 02               CMPA    #$02
+  898A 27 3E               BEQ   CICLOESCRITOVEINTE2AUX  *VEINTE
+
+
+  898C 18 CE 90 D4         LDY  #$90D4
+  8990 81 03               CMPA    #$03
+  8992 27 39               BEQ   CICLOESCRITODECAUX   *TREINTA
+
+
+  8994 18 CE 90 CA         LDY  #$90CA
+  8998 81 04               CMPA    #$04
+  899A 27 31               BEQ   CICLOESCRITODECAUX    *CUARENTA
+
+
+  899C 18 CE 90 C0         LDY  #$90C0
+  89A0 81 05               CMPA    #$05
+  89A2 27 29               BEQ   CICLOESCRITODECAUX    *CINCUENTA
+
+
+  89A4 18 CE 90 B8         LDY  #$90B8
+  89A8 81 06               CMPA    #$06
+  89AA 27 21               BEQ   CICLOESCRITODECAUX    *SESENTA
+
+  89AC 18 CE 90 B0         LDY  #$90B0
+  89B0 81 07               CMPA    #$07
+  89B2 27 19               BEQ   CICLOESCRITODECAUX   *SETENTA
+
+
+  89B4 18 CE 90 A8         LDY  #$90A8
+  89B8 81 08               CMPA    #$08
+  89BA 27 11               BEQ   CICLOESCRITODECAUX    *OCHENTA
+
+
+  89BC 18 CE 90 A0         LDY  #$90A0
+  89C0 81 09               CMPA    #$09
+  89C2 27 09               BEQ   CICLOESCRITODECAUX    *NOVENTA
+
+                   ESCRITOUNIDADAYUDA
+  89C4 7E 8A A8            JMP ESCRITOUNIDAD
+
+                   CICLOESCRITODIEZ2AUX
+  89C7 7E 89 D0            JMP CICLOESCRITODIEZ2
+                   CICLOESCRITOVEINTE2AUX
+  89CA 7E 8A 2D            JMP CICLOESCRITOVEINTE2
+                   CICLOESCRITODECAUX
+  89CD 7E 8A 7F            JMP CICLOESCRITODEC
+
+                   *PARTE DIEZ Y VEINTES
+                   CICLOESCRITODIEZ2
+
+  89D0 96 33               LDAA    DEGU
+
+  89D2 81 00               CMPA    #$00
+  ADDR B1 B2 B3 B4 C:\Users\pon_c\OneDrive\Documentos\OneDrive\     PAGE      27
+
+  89D4 27 48               BEQ   CICLOESCRITOUNIDADAUX   *DIEZ
+
+
+  89D6 18 CE 91 2E         LDY  #$912E
+  89DA 81 01               CMPA    #$01
+  89DC 27 40               BEQ   CICLOESCRITOUNIDADAUX    *ONCE
+
+
+  89DE 18 CE 91 29         LDY  #$9129
+  89E2 81 02               CMPA    #$02
+  89E4 27 38               BEQ   CICLOESCRITOUNIDADAUX     *DOCE
+
+
+
+  89E6 18 CE 91 23         LDY  #$9123
+  89EA 81 03               CMPA    #$03
+  89EC 27 30               BEQ   CICLOESCRITOUNIDADAUX     *TRECE
+
+
+  89EE 18 CE 91 1B         LDY  #$911B
+  89F2 81 04               CMPA    #$04
+  89F4 27 28               BEQ   CICLOESCRITOUNIDADAUX     *CATORCE
+
+
+  89F6 18 CE 91 14         LDY  #$9114
+  89FA 81 05               CMPA    #$05
+  89FC 27 20               BEQ   CICLOESCRITOUNIDADAUX      *QUINCE
+
+
+  89FE 18 CE 91 0A         LDY  #$910A
+  8A02 81 06               CMPA    #$06
+  8A04 27 18               BEQ   CICLOESCRITOUNIDADAUX       *DIECISEIS
+
+  8A06 18 CE 90 FF         LDY  #$90FF
+  8A0A 81 07               CMPA    #$07
+  8A0C 27 10               BEQ   CICLOESCRITOUNIDADAUX      *DIECISIETE
+
+  8A0E 18 CE 90 F5         LDY  #$90F5
+  8A12 81 08               CMPA    #$08
+  8A14 27 08               BEQ   CICLOESCRITOUNIDADAUX      *DIECIOCHO
+
+  8A16 18 CE 90 EA         LDY  #$90EA
+  8A1A 81 09               CMPA    #$09
+  8A1C 27 00               BEQ   CICLOESCRITOUNIDADAUX       *DIECINUEVE
+
+                   CICLOESCRITOUNIDADAUX
+  8A1E 18 E6 00            LDAB  $00,Y
+  8A21 E7 00               STAB  $00,X
+  8A23 08                  INX
+  8A24 18 08               INY
+  8A26 C1 20               CMPB #$20
+  8A28 26 F4               BNE CICLOESCRITOUNIDADAUX
+  8A2A 7E 8B 02            JMP WAIT2
+
+
+
+                   CICLOESCRITOVEINTE2
+
+  8A2D 96 33               LDAA    DEGU
+
+  8A2F 18 CE 90 DC         LDY  #$90DC
+  8A33 81 00               CMPA    #$00
+  8A35 27 E7               BEQ   CICLOESCRITOUNIDADAUX     *VEINTE
+
+  8A37 18 CE 91 38         LDY  #$9138
+  ADDR B1 B2 B3 B4 C:\Users\pon_c\OneDrive\Documentos\OneDrive\     PAGE      28
+
+  8A3B 81 01               CMPA    #$01
+  8A3D 27 DF               BEQ   CICLOESCRITOUNIDADAUX      *VEINTIUNO
+
+
+  8A3F 18 CE 91 42         LDY  #$9142
+  8A43 81 02               CMPA    #$02
+  8A45 27 D7               BEQ   CICLOESCRITOUNIDADAUX       *VEINTIDOS
+
+
+
+  8A47 18 CE 91 4C         LDY  #$914C
+  8A4B 81 03               CMPA    #$03
+  8A4D 27 CF               BEQ   CICLOESCRITOUNIDADAUX     *VEINTITRES
+
+
+  8A4F 18 CE 91 57         LDY  #$9157
+  8A53 81 04               CMPA    #$04
+  8A55 27 C7               BEQ   CICLOESCRITOUNIDADAUX     *VEINTICUATRO
+
+
+  8A57 18 CE 91 64         LDY  #$9164
+  8A5B 81 05               CMPA    #$05
+  8A5D 27 BF               BEQ   CICLOESCRITOUNIDADAUX     *VEINTICINCO
+
+
+  8A5F 18 CE 91 70         LDY  #$9170
+  8A63 81 06               CMPA    #$06
+  8A65 27 B7               BEQ   CICLOESCRITOUNIDADAUX      *VEINTISEIS
+
+
+  8A67 18 CE 91 7B         LDY  #$917B
+  8A6B 81 07               CMPA    #$07
+  8A6D 27 AF               BEQ   CICLOESCRITOUNIDADAUX       *VEINTISIETE
+
+  8A6F 18 CE 91 87         LDY  #$9187
+  8A73 81 08               CMPA    #$08
+  8A75 27 A7               BEQ   CICLOESCRITOUNIDADAUX       *VEINTIOCHO
+
+  8A77 18 CE 91 92         LDY  #$9192
+  8A7B 81 09               CMPA    #$09
+  8A7D 27 9F               BEQ   CICLOESCRITOUNIDADAUX       *VEINTINUEVE
+
+
+
+
+                   CICLOESCRITODEC
+
+
+  8A7F 18 E6 00            LDAB  $00,Y
+  8A82 E7 00               STAB  $00,X
+  8A84 08                  INX
+  8A85 18 08               INY
+  8A87 C1 20               CMPB #$20
+  8A89 26 F4               BNE CICLOESCRITODEC
+  8A8B 27 00               BEQ ESCRIBEYAUX
+                   ESCRIBEYAUX
+  8A8D 96 33               LDAA DEGU
+  8A8F 81 00               CMPA #$00
+  8A91 27 12               BEQ  WAIT6
+  8A93 C6 20               LDAB #$20      *ESPACIO
+  8A95 E7 00               STAB $00,X
+  8A97 08                  INX
+  8A98 C6 79               LDAB #$79      *Y
+  8A9A E7 00               STAB $00,X
+  8A9C 08                  INX
+  ADDR B1 B2 B3 B4 C:\Users\pon_c\OneDrive\Documentos\OneDrive\     PAGE      29
+
+  8A9D C6 20               LDAB #$20      *ESPACIO
+  8A9F E7 00               STAB $00,X
+  8AA1 08                  INX
+  8AA2 7E 8A A8            JMP   ESCRITOUNIDAD
+                   WAIT6
+  8AA5 7E 8B 02            JMP WAIT2
+
+                   ESCRITOUNIDAD
+
+  8AA8 96 33               LDAA    DEGU
+  8AAA 81 00               CMPA    #$00
+  8AAC 27 54               BEQ     WAIT2
+
+  8AAE 18 CE 90 00         LDY  #$9000
+  8AB2 81 01               CMPA    #$01
+  8AB4 27 40               BEQ   CICLOESCRITOUNIDAD  *UNO
+
+
+  8AB6 18 CE 90 04         LDY  #$9004
+  8ABA 81 02               CMPA    #$02
+  8ABC 27 38               BEQ   CICLOESCRITOUNIDAD   *DOS
+
+
+  8ABE 18 CE 90 08         LDY  #$9008
+  8AC2 81 03               CMPA    #$03
+  8AC4 27 30               BEQ   CICLOESCRITOUNIDAD   *TRES
+
+
+  8AC6 18 CE 90 0D         LDY  #$900D
+  8ACA 81 04               CMPA    #$04
+  8ACC 27 28               BEQ   CICLOESCRITOUNIDAD    *CUATRO
+
+
+  8ACE 18 CE 90 14         LDY  #$9014
+  8AD2 81 05               CMPA    #$05
+  8AD4 27 20               BEQ   CICLOESCRITOUNIDAD    *CINCO
+
+
+  8AD6 18 CE 90 1A         LDY  #$901A
+  8ADA 81 06               CMPA    #$06
+  8ADC 27 18               BEQ   CICLOESCRITOUNIDAD    *SEIS
+
+  8ADE 18 CE 90 1F         LDY  #$901F
+  8AE2 81 07               CMPA    #$07
+  8AE4 27 10               BEQ   CICLOESCRITOUNIDAD    *SIETE
+
+
+  8AE6 18 CE 90 25         LDY  #$9025
+  8AEA 81 08               CMPA    #$08
+  8AEC 27 08               BEQ   CICLOESCRITOUNIDAD    *OCHO
+
+
+  8AEE 18 CE 90 2A         LDY  #$902A
+  8AF2 81 09               CMPA    #$09
+
+  8AF4 27 00               BEQ   CICLOESCRITOUNIDAD    *NUEVE
+
+
+
+                   CICLOESCRITOUNIDAD
+  8AF6 18 E6 00            LDAB  $00,Y
+  8AF9 E7 00               STAB  $00,X
+  8AFB 08                  INX
+  8AFC 18 08               INY
+  8AFE C1 20               CMPB #$20
+  ADDR B1 B2 B3 B4 C:\Users\pon_c\OneDrive\Documentos\OneDrive\     PAGE      30
+
+  8B00 26 F4               BNE CICLOESCRITOUNIDAD
+
+
+
+                   WAIT2
+  8B02 C6 29             LDAB #$29     *)
+  8B04 E7 00             STAB $00,X
+  8B06 08                INX
+  8B07 86 3F             LDAA #'?
+  8B09 97 00             STAA ORDEN
+                   OKAYCICLO
+  8B0B D6 00             LDAB ORDEN
+  8B0D C1 3F             CMPB #'?
+  8B0F 27 FA             BEQ OKAYCICLO
+  8B11 C1 4F             CMPB #'O
+  8B13 27 04             BEQ OKAYCICLO2
+                   WAIT7
+  8B15 86 3F             LDAA #'?
+  8B17 97 00             STAA ORDEN
+
+                   OKAYCICLO2
+  8B19 D6 00             LDAB ORDEN
+  8B1B C1 3F             CMPB #'?
+  8B1D 27 FA             BEQ OKAYCICLO2
+  8B1F C1 4B             CMPB #'K
+  8B21 27 04             BEQ OKAYCICLO3
+                   WAIT9
+  8B23 86 3F             LDAA #'?
+  8B25 97 00             STAA ORDEN
+
+                   OKAYCICLO3
+  8B27 5F                CLRB
+  8B28 D6 00             LDAB ORDEN
+  8B2A C1 3F             CMPB #'?
+  8B2C 27 F9             BEQ OKAYCICLO3
+
+  8B2E CE 00 50          LDX #DIR_BASE
+  8B31 7F 00 05          CLR VAR
+  8B34 7F 00 06          CLR CONTOK
+  8B37 09                DEX
+                         *STAB $00,X
+  8B38 7E 80 00          JMP INICIO
+
+                   CICLATE2
+  8B3B 86 3F             LDAA #'?
+  8B3D 97 00             STAA ORDEN
+                   CICLO2
+  8B3F D6 00             LDAB ORDEN
+  8B41 C1 3F             CMPB #'?
+  8B43 27 FA             BEQ  CICLO2
+
+  8B45 CE 00 50          LDX #DIR_BASE
+  8B48 7F 00 05          CLR VAR
+  8B4B 7F 00 06          CLR CONTOK
+  8B4E E7 00             STAB $00,X
+  8B50 08                INX
+  8B51 09                DEX
+
+                   * GUARDADO DE DATOS EN LA POSICIN $0050
+                   LOOP2
+  8B52 96 05             LDAA VAR
+  8B54 27 FC             BEQ  LOOP2
+  8B56 7F 00 05          CLR  VAR
+
+
+  ADDR B1 B2 B3 B4 C:\Users\pon_c\OneDrive\Documentos\OneDrive\     PAGE      31
+
+  8B59 D6 00             LDAB ORDEN
+  8B5B E7 00             STAB $00,X
+
+  8B5D 08                INX
+  8B5E 7C 00 41          INC NODIG
+
+                         *Revisa si orden tiene una O y luego revisa si hay una
+.                  K
+  8B61 C1 3D             CMPB #$3D
+  8B63 27 02             BEQ EXITOS2
+
+
+                         *Si no hay o o K regresa a realizar el escrito
+  8B65 26 EB             BNE LOOP2
+
+                   EXITOS2
+  8B67 7E 80 61          JMP EXITOS
+
+
+
+
+                   ******************************************
+                   *Configuracion
+                   ******************************************
+                   SERIAL
+
+  8B6A CC 30 2C           LDD   #$302C  * CONFIGURA PUERTO SERIAL
+  8B6D B7 10 2B           STAA  BAUD    * BAUD  9600  para cristal de 8MHz
+  8B70 F7 10 2D           STAB  SCCR2   * HABILITA  RX Y TX PERO INTERRUPCN SOLO
+.                  RX
+  8B73 86 00              LDAA  #$00
+  8B75 B7 10 2C           STAA  SCCR1   * 8 BITS
+
+  8B78 86 FE              LDAA  #$FE    * CONFIG PUERTO D COMO SALIDAS (EXCEPTO
+.                  PD0)
+  8B7A B7 10 09           STAA  DDRD    * SEA  ENABLE DEL DISPLAY  PD4  Y RS PD3
+
+
+  8B7D 86 04              LDAA  #$04
+  8B7F B7 10 3C           STAA  HPRIO
+
+  8B82 86 00              LDAA  #$00
+  8B84 06                 TAP
+  8B85 39                RTS
+
+
+                   ***********************************
+                   * ATENCION A INTERRUPCION SERIAL
+                   ***********************************
+                          ORG  $F100
+
+  F100 B6 10 2E           LDAA SCSR
+  F103 B6 10 2F           LDAA SCDR
+  F106 97 00              STAA ORDEN
+  F108 7A 00 05           DEC  VAR
+
+  F10B 3B                 RTI
+
+                   ***********************************
+                   * VECTOR INTERRUPCION SERIAL
+                   ***********************************
+                          ORG   $FFD6
+  FFD6 F1 00              FCB   $F1,$00
+
+
+  ADDR B1 B2 B3 B4 C:\Users\pon_c\OneDrive\Documentos\OneDrive\     PAGE      32
+
+                   ***********************************
+                   *RESET
+                   ***********************************
+                          ORG    $FFFE
+  FFFE 80 00       RESET  FCB    $80,$00
+                   ***********************************
+                          END   $8000
+
+  Symbol Table 
+
+  ESV                815A
+  U2                 0002
+  U3                 0003
+  ESX                8190
+  U4                 0004
+  COMPARA2           83D2
+  COMPARA3           83C3
+  CORRECTOV          8163
+  CORRECTOX          8199
+  ESCRITOUNIDAD      8AA8
+  CICLOESCRITODIEZ2AUX 89C7
+  SALTACOMPARAXB     81C9
+  COMPARAC           811B
+  DIRMEN             0043
+  CICLOESCRITOCIENUNIAUX 895B
+  MMILLAR            842A
+  CCENTENA5          84A1
+  COMPARAI           80E9
+  SERIAL             8B6A
+  DECENAS            840E
+  SALTA2ERROR        8244
+  COMPARAM           8137
+  WAIT2              8B02
+  WAIT4              88F8
+  WAIT5              87D0
+  SALTAERROR         818D
+  WAIT6              8AA5
+  WAIT7              8B15
+  WAIT9              8B23
+  DECIMAL            8391
+  DIRERRO            8F00
+  COMPARAX           8102
+  LOOP2              8B52
+  CMENOR5            846D
+  EXITODECIMAL       8377
+  CICLOESCRITOVEINTE2AUX 89CA
+  ESCRITODECENAINICIAL2 8745
+  DES4               84FD
+  ESCRITOUNIDADINICIALAUX 87A1
+  CICLOESCRITOUNIAUX 882F
+  SALTAESDECENA      83FB
+  SALTAMILLARES      83DE
+  ESMILLAR           8417
+  SALTAERRORROMANO   80AA
+  REFC               0024
+  DIR_BASE           0050
+  CICLOESCRITOVEINTE 883E
+  REFD               0026
+  CSCTL              105D
+  CONTERR            0034
+  ESCRITOCENTENAINICIAL 868A
+  REFL               0025
+  REFM               0027
+  REFT               0023
+  ERRORROMANO        8324
+  Symbol Table     C:\Users\pon_c\OneDrive\Documentos\OneDrive\     PAGE      33
+
+  CICLOESCRITOUNIDADAUX 8A1E
+  DIRERDE            8F2F
+  OKAYCICLO          8B0B
+  CICLOESCRITOVEINTE2 8A2D
+  CENTENAS           8401
+  EXITOS2            8B67
+  XDECENA5           8527
+  SCCR1              102C
+  REF                0022
+  CONT2              0021
+  SCCR2              102D
+  CICLATE2           8B3B
+  SALTAESUNIDAD      83FE
+  XDECENA            8518
+  CAR                0040
+  CICLOESCRITODIEZAUX 87A4
+  BAUD               102B
+  LIMPIA             85F3
+  CONTC              0029
+  CONTD              002A
+  CICLO              803A
+  IUNIDAD            859B
+  CICLOESCRITOCIENUNI 871E
+  DIGACT             0042
+  CONTM              0028
+  CICLO2             8B3F
+  ESCENTENA          8442
+  VAR                0005
+  CONTU              002B
+  EXITOS             8061
+  ROMANO             80D1
+  CICLOESCRITOCIENAUX 8955
+  COMPARACB          8129
+  REVISION_ROMANO    808A
+  CICLOESCRITOCIENTO 8728
+  FINMILLAR          8421
+  OPT2               1038
+  SALTATERMINA       8145
+  ESCRITODECENAINICIAL 8713
+  CICLATE            8036
+  ESCRITOCENTENA     8909
+  DEGC               0031
+  DEGD               0032
+  PROCESODECIMALRANGO 8363
+  REVISION_DECIMAL   8349
+  IUNIDAD5           85AA
+  DNOES9             8530
+  DEGM               0030
+  ESCRIBEMIL         868D
+  DEGU               0033
+  CICLOESCRITOCEN    896A
+  SALTAERRORCERO     838E
+  SALTAERRORDECIMAL  8355
+  CICLOESCRITOCIEN   8716
+  ESCRITOCENTENAINICIAL2 86B5
+  DIR_LETRAS         0070
+  UNISALTO           888E
+  PROCESODECIMAL     8358
+  RESET              FFFE
+  ESCRITOUNIDADAYUDA 89C4
+  CICLOESCRITOVEINTEAUX 87A7
+  ESDECENA           84C8
+  MILLARES           83E4
+  PROCESOROMANO      80AD
+  UMENOR5            8579
+  Symbol Table     C:\Users\pon_c\OneDrive\Documentos\OneDrive\     PAGE      34
+
+  COMPARAXB          8110
+  CICLOESCRITOC      872F
+  CICLOESCRITOD      87AA
+  ORDEN              0000
+  ESCRIBEY           87B8
+  HPRIO              103C
+  SALTACOMPARAM      828D
+  TERMINA            82DC
+  ESCRIBEYAUX        8A8D
+  EXITOROMANO        80B6
+  CARESC             0035
+  SALTALIDECIMAL     8613
+  SCSR               102E
+  OKAYCICLO2         8B19
+  OKAYCICLO3         8B27
+  ESUNIDAD           854E
+  SALTA2WAIT         8346
+  OBTIENECAR         83A3
+  FINCENTENA         84BF
+  SALTAESC           8134
+  CNOES9             84AA
+  TIPO               0037
+  SALTAESMILLAR      83F5
+  CONT               0020
+  CICLOESCRITOUNI    88FB
+  CICLOESCRITO       867C
+  CES4               8477
+  SALTAESCENTENA     83F8
+  SALTAESM           8142
+  DDRD               1009
+  FINDECENA          8545
+  ESCRITOCENTENAAUX  86B2
+  ERRORDECIMAL       85D1
+  CICLOESCRITODEC    8A7F
+  SALTACOMPARACB     8203
+  SCDR               102F
+  NOESC              82D1
+  CICLOESCRITODIEZ2  89D0
+  WAIT               8616
+  SALTACENTENAS      83E1
+  IMPRIMEC           8307
+  IMPRIMED           8311
+  ESCRITOUNIDADINICIAL 889A
+  DIRERNV            8F18
+  ESCRITODECENA      8976
+  IMPRIMEM           82FD
+  CONTOK             0006
+  CCENTENA           8492
+  SALTAWAIT          83DB
+  LOOP               804C
+  ESCRITOMILLARINICIAL 8616
+  IMPRIMEU           831B
+  DMENOR5            84F3
+  CICLOESCRITOUNIDAD 8AF6
+  UNOES9             85B3
+  SPCR               1028
+  CICLOESCRITODIEZ   87D3
+  CICLOESCRITOCIENTOAUX 8963
+  ESC                8206
+  AUXDECIMAL         0007
+  UES4               8583
+  ESD                8247
+  FINUNIDAD          85C8
+  INICIO             8000
+  DIRLIM             0036
+  Symbol Table     C:\Users\pon_c\OneDrive\Documentos\OneDrive\     PAGE      35
+
+  ESI                8148
+  NODIG              0041
+  ESL                81CC
+  CICLOESCRITODECAUX 89CD
+  ESM                8290
+  CORRECTOC          820F
+  CORRECTOI          8151
+  DECSALTO           873D
+  U1                 0001

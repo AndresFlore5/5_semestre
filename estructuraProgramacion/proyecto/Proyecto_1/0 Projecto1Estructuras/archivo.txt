@@ -1,0 +1,8 @@
+DATOS
+    LDAA $24
+    STDA #$32
+INICIO
+    LDAA $3454,X
+    JMP
+    ADDD $124B
+    

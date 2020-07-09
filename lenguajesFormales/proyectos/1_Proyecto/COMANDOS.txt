@@ -1,0 +1,8 @@
+->  flex ejemplo.l
+
+//el final es el ejecutable
+->  gcc lex.yy.c -o ejemplo -lfl
+
+-> ./nombre
+
+control + c
